@@ -1,0 +1,228 @@
+/* Definición de variables para temas claro y oscuro */
+:root {
+    --background-color: #f0f0f0;
+    --container-background: #ffffff;
+    --text-color: #333333;
+    --secondary-text-color: #555555;
+    --label-color: #555555;
+    --input-background: #ffffff;
+    --input-border: #ccc;
+    --button-background: #4CAF50;
+    --button-hover-background: #45a049;
+    --random-button-background: #9c27b0;
+    --random-button-hover-background: #7b1fa2;
+    --pokemon-background: #ffffff;
+    --pokemon-border: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-light: rgba(0, 0, 0, 0.05);
+    --span-color: #666666;
+}
+
+/* Tema oscuro */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --container-background: #1e1e1e;
+        --text-color: #e0e0e0;
+        --secondary-text-color: #bbbbbb;
+        --label-color: #cccccc;
+        --input-background: #2c2c2c;
+        --input-border: #555555;
+        --button-background: #388e3c;
+        --button-hover-background: #2e7d32;
+        --random-button-background: #8e24aa;
+        --random-button-hover-background: #6a1b9a;
+        --pokemon-background: #2c2c2c;
+        --pokemon-border: #555555;
+        --shadow-color: rgba(255, 255, 255, 0.1);
+        --shadow-color-light: rgba(255, 255, 255, 0.05);
+        --span-color: #aaaaaa;
+    }
+}
+
+body {
+    font-family: 'Lexend', sans-serif;
+    background: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+form {
+    background: var(--container-background);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 15px var(--shadow-color);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+.player {
+    flex: 1;
+    min-width: 300px;
+    background: var(--pokemon-background);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--pokemon-border);
+    box-sizing: border-box;
+}
+
+/* Colores específicos para cada jugador */
+.player1 {
+    background: #5EC5F0;
+}
+
+.player2 {
+    background: #E3575F;
+}
+
+/* Ajustar colores para el modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .player1 {
+        background: #00AEEF; /* Ejemplo: color más oscuro para player1 */
+    }
+    .player2 {
+        background: #E20613; /* Ejemplo: color más oscuro para player2 */
+    }
+}
+
+h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+h3 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+h4 {
+    margin-bottom: 10px;
+    color: var(--secondary-text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.random-button {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: var(--random-button-background);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.random-button:hover {
+    background: var(--random-button-hover-background);
+}
+
+.pokemon {
+    background: var(--pokemon-background);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--pokemon-border);
+    box-shadow: 0 0 10px var(--shadow-color-light);
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--label-color);
+}
+
+input[type="text"], select, input[type="range"] {
+    width: calc(100% - 20px);
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid var(--input-border);
+    background: var(--input-background);
+    color: var(--text-color);
+    box-sizing: border-box;
+}
+
+/* Estilos específicos para input[type="color"] */
+input[type="color"] {
+    width: calc(100% - 26px);
+    height: 30px; /* Tamaño adecuado */
+    padding: 0; /* Eliminar padding para evitar conflictos */
+    border: none; /* Opcional: eliminar borde si no es necesario */
+    cursor: pointer; /* Indicador de que es interactivo */
+    vertical-align: middle; /* Alinear correctamente */
+    border-radius: 4px;
+    background: none;
+}
+
+input[type="range"] {
+    width: calc(100% - 30px);
+}
+
+span {
+    font-weight: normal;
+    color: var(--span-color);
+}
+
+.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    background: var(--button-background);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+button:hover {
+    background: var(--button-hover-background);
+}
+
+button.random-all {
+    background: var(--random-button-background);
+}
+
+button.random-all:hover {
+    background: var(--random-button-hover-background);
+}
+
+@media (max-width: 768px) {
+    .player {
+        min-width: 100%;
+    }
+}

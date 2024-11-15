@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Pokemones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Generador de Pokemones</h1>
+    <form id="pokemon-form">
+        <div id="player1" class="player player1">
+            <h3>Player 1</h3>
+            <div class="pokemon" id="player1-pokemon1">
+                <h4>
+                    Pokémon 1 (Principal)
+                    <button type="button" class="random-button" onclick="generateRandomPokemon('player1', 1)">
+                        <i class="fas fa-random"></i> Random
+                    </button>
+                </h4>
+                <label>Nombre: <input type="text" name="player1-pokemon1-name" required oninput="validateNames('player1')"></label>
+                <label>Tipo:
+                    <select name="player1-pokemon1-type">
+                        <option value="Fuego">Fuego</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Planta">Planta</option>
+                        <option value="Electrico">Eléctrico</option>
+                    </select>
+                </label>
+                <label>Color:
+                    <input type="color" name="player1-pokemon1-color" onchange="updateColorPreview(this)">
+                </label>
+                <label>Vida: <input type="range" min="100" max="500" name="player1-pokemon1-life" oninput="document.getElementById('player1-pokemon1-life-value').textContent = this.value">
+                    <span id="player1-pokemon1-life-value">250</span></label>
+                <input type="hidden" name="player1-pokemon1-false" value="false">
+                <input type="hidden" name="player1-pokemon1-true" value="true">
+            </div>
+            <div class="pokemon" id="player1-pokemon2">
+                <h4>
+                    Pokémon 2 (Secundario)
+                    <button type="button" class="random-button" onclick="generateRandomPokemon('player1', 2)">
+                        <i class="fas fa-random"></i> Random
+                    </button>
+                </h4>
+                <label>Nombre: <input type="text" name="player1-pokemon2-name" required oninput="validateNames('player1')"></label>
+                <label>Tipo:
+                    <select name="player1-pokemon2-type">
+                        <option value="Fuego">Fuego</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Planta">Planta</option>
+                        <option value="Electrico">Eléctrico</option>
+                        <option value="Normal">Normal</option>
+                        <!-- Añade más tipos si es necesario -->
+                    </select>
+                </label>
+                <label>Color:
+                    <input type="color" name="player1-pokemon2-color" onchange="updateColorPreview(this)">
+                </label>
+                <label>Vida: <input type="range" min="100" max="500" name="player1-pokemon2-life" oninput="document.getElementById('player1-pokemon2-life-value').textContent = this.value">
+                    <span id="player1-pokemon2-life-value">250</span></label>
+                <input type="hidden" name="player1-pokemon2-false" value="false">
+                <input type="hidden" name="player1-pokemon2-false2" value="false">
+            </div>
+        </div>
+
+        <div id="player2" class="player player2">
+            <h3>Player 2</h3>
+            <div class="pokemon" id="player2-pokemon1">
+                <h4>
+                    Pokémon 1 (Principal)
+                    <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 1)">
+                        <i class="fas fa-random"></i> Random
+                    </button>
+                </h4>
+                <label>Nombre: <input type="text" name="player2-pokemon1-name" required oninput="validateNames('player2')"></label>
+                <label>Tipo:
+                    <select name="player2-pokemon1-type">
+                        <option value="Fuego">Fuego</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Planta">Planta</option>
+                        <option value="Electrico">Eléctrico</option>
+                        <option value="Normal">Normal</option>
+                        <!-- Añade más tipos si es necesario -->
+                    </select>
+                </label>
+                <label>Color:
+                    <input type="color" name="player2-pokemon1-color" onchange="updateColorPreview(this)">
+                </label>
+                <label>Vida: <input type="range" min="100" max="500" name="player2-pokemon1-life" oninput="document.getElementById('player2-pokemon1-life-value').textContent = this.value">
+                    <span id="player2-pokemon1-life-value">250</span></label>
+                <input type="hidden" name="player2-pokemon1-false" value="false">
+                <input type="hidden" name="player2-pokemon1-true" value="true">
+            </div>
+            <div class="pokemon" id="player2-pokemon2">
+                <h4>
+                    Pokémon 2 (Secundario)
+                    <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 2)">
+                        <i class="fas fa-random"></i> Random
+                    </button>
+                </h4>
+                <label>Nombre: <input type="text" name="player2-pokemon2-name" required oninput="validateNames('player2')"></label>
+                <label>Tipo:
+                    <select name="player2-pokemon2-type">
+                        <option value="Fuego">Fuego</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Planta">Planta</option>
+                        <option value="Electrico">Eléctrico</option>
+                        <!-- Añade más tipos si es necesario -->
+                    </select>
+                </label>
+                <label>Color:
+                    <input type="color" name="player2-pokemon2-color" onchange="updateColorPreview(this)">
+                </label>
+                <label>Vida: <input type="range" min="100" max="500" name="player2-pokemon2-life" oninput="document.getElementById('player2-pokemon2-life-value').textContent = this.value">
+                    <span id="player2-pokemon2-life-value">250</span></label>
+                <input type="hidden" name="player2-pokemon2-false" value="false">
+                <input type="hidden" name="player2-pokemon2-false2" value="false">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button type="button" class="random-all" onclick="generateAllRandomPokemon()">
+                <i class="fas fa-dice"></i> Generar Todo Random
+            </button>
+            <button type="button" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i> Guardar en el Portapapeles
+            </button>
+        </div>
+    </form>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
