@@ -1,3 +1,4 @@
+// Data for Pokémon
 const pokemonData = {
     "Pikachu": { "type": "Electrico", "color": "#FFFF00" },
     "Jolteon": { "type": "Electrico", "color": "#FFD700" },
@@ -15,38 +16,14 @@ const pokemonData = {
 
 const pokemonNames = Object.keys(pokemonData);
 
-function updateColorPreview(input) {
-    const previewElement = document.getElementById(`${input.name}-preview`);
-    if (previewElement) {
-        previewElement.style.backgroundColor = input.value;
-    }
-}
-
-function generateRandomPokemon(player, pokemonNum) {
-    let randomName;
-    do {
-        randomName = pokemonNames[Math.floor(Math.random() * pokemonNames.length)];
-    } while (isNameInUse(randomName, player));
-
-    const nameInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`);
-    nameInput.value = randomName;
-
-    const { type, color } = pokemonData[randomName];
-    setTypeAndColor(player, pokemonNum, type, color);
-
-    const randomLife = Math.floor(Math.random() * 401) + 100;
-    const lifeInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`);
-    lifeInput.value = randomLife;
-    document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = randomLife;
-}
-
-function setTypeAndColor(player, pokemonNum, type, color) {
-    const typeSelect = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`);
-    setSelectValue(typeSelect, type);
-
-    const colorInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`);
-    colorInput.value = color;
-    updateColorPreview(colorInput);
+// Utility functions
+function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+    };
 }
 
 function setSelectValue(selectElement, value) {
@@ -73,6 +50,106 @@ function isNameInUse(name, player) {
     return name === name1 || name === name2;
 }
 
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+// Form manipulation functions
+function updateColorPreview(input) {
+    const previewElement = document.getElementById(`${input.name}-preview`);
+    if (previewElement) {
+        previewElement.style.backgroundColor = input.value;
+    }
+}
+
+function setTypeAndColor(player, pokemonNum, type, color) {
+    const typeSelect = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`);
+    setSelectValue(typeSelect, type);
+
+    const colorInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`);
+    colorInput.value = color;
+    updateColorPreview(colorInput);
+}
+
+function validateNames(player) {
+    const name1 = document.querySelector(`[name="${player}-pokemon1-name"]`).value;
+    const name2 = document.querySelector(`[name="${player}-pokemon2-name"]`).value;
+
+    if (name1 && name2 && name1 === name2) {
+        showToast('Los nombres de los Pokémon no pueden ser iguales para el mismo jugador.');
+        document.querySelector(`[name="${player}-pokemon2-name"]`).value = '';
+        return;
+    }
+
+    [1, 2].forEach(pokemonNum => {
+        const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
+        if (pokemonData[name]) {
+            const { type, color } = pokemonData[name];
+            setTypeAndColor(player, pokemonNum, type, color);
+        }
+    });
+}
+
+function extractFormData() {
+    const data = {};
+    ['player1', 'player2'].forEach(player => {
+        data[player] = [];
+        for (let i = 1; i <= 2; i++) {
+            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
+            data[player].push({ name, type, color, life });
+        }
+    });
+    return data;
+}
+
+function areFieldsValid() {
+    return ['player1', 'player2'].every(player => {
+        return [1, 2].every(pokemonNum => {
+            const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`).value;
+            return name && type && color && life;
+        });
+    });
+}
+
+let previousFormState = {};
+
+function hasFormChanged() {
+    const currentFormState = extractFormData();
+    const isChanged = JSON.stringify(currentFormState) !== JSON.stringify(previousFormState);
+    previousFormState = currentFormState;
+    return isChanged;
+}
+
+// Pokémon generation functions
+function generateRandomPokemon(player, pokemonNum) {
+    let randomName;
+    do {
+        randomName = pokemonNames[Math.floor(Math.random() * pokemonNames.length)];
+    } while (isNameInUse(randomName, player));
+
+    const nameInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`);
+    nameInput.value = randomName;
+
+    const { type, color } = pokemonData[randomName];
+    setTypeAndColor(player, pokemonNum, type, color);
+
+    const randomLife = Math.floor(Math.random() * 401) + 100;
+    const lifeInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`);
+    lifeInput.value = randomLife;
+    document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = randomLife;
+}
+
 function generateAllRandomPokemon() {
     ['player1', 'player2'].forEach(player => {
         [1, 2].forEach(pokemonNum => generateRandomPokemon(player, pokemonNum));
@@ -80,9 +157,10 @@ function generateAllRandomPokemon() {
     generateQRCode();
 }
 
+// Clipboard and QR code functions
 function copyToClipboard() {
     if (!document.getElementById('pokemon-form').checkValidity()) {
-        alert('Por favor, completa todos los campos antes de copiar el texto.');
+        showToast('Por favor, completa todos los campos antes de copiar el texto.', "error");
         return;
     }
     const formData = new FormData(document.getElementById('pokemon-form'));
@@ -104,69 +182,26 @@ function copyToClipboard() {
     });
 
     navigator.clipboard.writeText(resultString).then(() => {
-        alert('El texto se ha copiado al portapapeles');
+        showToast('El texto se ha copiado al portapapeles');
     }, () => {
-        alert('No se pudo copiar el texto al portapapeles');
-    });
-}
-
-function hexToRgb(hex) {
-    const bigint = parseInt(hex.slice(1), 16);
-    return {
-        r: (bigint >> 16) & 255,
-        g: (bigint >> 8) & 255,
-        b: bigint & 255
-    };
-}
-
-function validateNames(player) {
-    const name1 = document.querySelector(`[name="${player}-pokemon1-name"]`).value;
-    const name2 = document.querySelector(`[name="${player}-pokemon2-name"]`).value;
-
-    if (name1 && name2 && name1 === name2) {
-        alert('Los nombres de los Pokémon no pueden ser iguales para el mismo jugador.');
-        document.querySelector(`[name="${player}-pokemon2-name"]`).value = '';
-        return;
-    }
-
-    [1, 2].forEach(pokemonNum => {
-        const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
-        if (pokemonData[name]) {
-            const { type, color } = pokemonData[name];
-            setTypeAndColor(player, pokemonNum, type, color);
-        }
+        showToast('No se pudo copiar el texto al portapapeles', "error");
     });
 }
 
 function generateShareableId() {
     if (!document.getElementById('pokemon-form').checkValidity()) {
-        alert('Por favor, completa todos los campos antes de copiar el texto.');
+        showToast('Por favor, completa todos los campos antes de copiar el texto.', "error");
         return;
     }
     const data = extractFormData();
     const jsonString = JSON.stringify(data);
     const compressed = LZString.compressToEncodedURIComponent(jsonString);
     navigator.clipboard.writeText(compressed).then(() => {
-        alert('El texto se ha copiado al portapapeles');
+        showToast('El ID se ha copiado al portapapeles');
     }, () => {
-        alert('No se pudo copiar el texto al portapapeles');
+        showToast('No se pudo copiar el texto al portapapeles', "error");
     });
     return compressed;
-}
-
-function extractFormData() {
-    const data = {};
-    ['player1', 'player2'].forEach(player => {
-        data[player] = [];
-        for (let i = 1; i <= 2; i++) {
-            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
-            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
-            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
-            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
-            data[player].push({ name, type, color, life });
-        }
-    });
-    return data;
 }
 
 function importFromId(sharedId) {
@@ -184,10 +219,10 @@ function importFromId(sharedId) {
                 updateColorPreview(document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`));
             });
         });
-        alert("Configuración importada exitosamente.");
+        showToast("Configuración importada exitosamente.");
     } catch (error) {
         console.error(error);
-        alert("ID inválido. Por favor verifica e intenta nuevamente.");
+        showToast("ID inválido. Por favor verifica e intenta nuevamente.", "error");
     }
 }
 
@@ -205,12 +240,13 @@ function generateQRCode() {
     const compressed = LZString.compressToEncodedURIComponent(jsonString);
 
     if (compressed.length > 1056) {
-        alert("Los datos son demasiado grandes para generar un QR.");
+        showToast("Los datos son demasiado grandes para generar un QR.", "error");
         qrCodeContainer.innerHTML = "";
         return;
     }
 
     qrCodeContainer.innerHTML = "";
+    qrCodeContainer.style.boxShadow = '0 0 0 10px white inset';
     new QRCode(qrCodeContainer, {
         text: compressed,
         width: 200,
@@ -218,32 +254,7 @@ function generateQRCode() {
         correctLevel: QRCode.CorrectLevel.L,
     });
 }
-
-document.addEventListener('input', generateQRCode);
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('pokemon-form');
-    form.addEventListener('input', () => {
-        if (areFieldsValid() && hasFormChanged()) {
-            generateQRCode();
-        }
-    });
-    if (areFieldsValid()) {
-        generateQRCode();
-    }
-});
-
-function openPopup() {
-    document.getElementById('import-popup').style.display = 'flex';
-}
-
-function closePopup() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-    }
-    document.getElementById('import-popup').style.display = 'none';
-}
-
+// Camera and QR code import functions
 let cameraStream = null;
 
 function activateCamera() {
@@ -260,7 +271,7 @@ function activateCamera() {
         })
         .catch((err) => {
             console.error('Error al activar la cámara:', err);
-            alert('No se pudo activar la cámara. Por favor verifica los permisos.');
+            showToast('No se pudo activar la cámara. Por favor verifica los permisos.', "error");
         });
 
     function scanQRCode() {
@@ -274,7 +285,7 @@ function activateCamera() {
             if (code) {
                 importFromId(code.data);
                 closePopup();
-                alert(`QR escaneado con éxito: ${code.data}`);
+                showToast(`QR escaneado con éxito`);
                 return;
             }
         }
@@ -307,14 +318,14 @@ function importFromQRCode() {
                 if (code) {
                     importFromId(code.data);
                     closePopup();
-                    alert('QR importado con éxito: ' + code.data);
+                    showToast('QR importado con éxito');
                 } else {
-                    alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
+                    showToast('No se pudo leer el código QR. Por favor intenta nuevamente.', "error");
                 }
             };
         } catch (error) {
             console.error(error);
-            alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
+            showToast('No se pudo leer el código QR. Por favor intenta nuevamente.', "error");
         }
     };
 
@@ -359,32 +370,74 @@ function importFromCamera(callbacks = {}) {
     }
 }
 
-function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-        reader.readAsDataURL(file);
+// Form and popup management functions
+function clearForm() {
+    const form = document.getElementById('pokemon-form');
+    form.reset();
+    document.querySelectorAll('.pokemon span[id$="-life-value"]').forEach(span => {
+        span.textContent = '250';
     });
+    const qrCodeContainer = document.getElementById('qrcode');
+    qrCodeContainer.innerHTML = '';
+    qrCodeContainer.style.boxShadow = 'none';
 }
 
-function areFieldsValid() {
-    return ['player1', 'player2'].every(player => {
-        return [1, 2].every(pokemonNum => {
-            const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
-            const type = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`).value;
-            const color = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`).value;
-            const life = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`).value;
-            return name && type && color && life;
-        });
+function confirmClearForm() {
+    if (confirm('Quieres borrar todos los datos?')) {
+        clearForm();
+        showToast('Datos borrados exitosamente');
+    }
+}
+
+function openPopup() {
+    document.getElementById('import-popup').style.display = 'flex';
+}
+
+function closePopup() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    document.getElementById('import-popup').style.display = 'none';
+}
+
+// Toast notification function
+function showToast(message, type = "info") {
+    const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-background-color');
+    const shadowColor = getComputedStyle(document.documentElement).getPropertyValue('--shadow-color');
+    const accentColor = type === "error" ? "red" : "green";
+
+    Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "bottom", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        backgroundColor: backgroundColor,
+        className: `toast-${type}`,
+        style: {
+            borderLeft: `5px solid ${accentColor}`,
+            boxShadow: `0 0 10px ${shadowColor}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start'
+        },
+        onClick: function() {
+            this.remove();
+        }
+    }).showToast();
+}
+
+// Event listeners
+document.addEventListener('input', generateQRCode);
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('pokemon-form');
+    form.addEventListener('input', () => {
+        if (areFieldsValid() && hasFormChanged()) {
+            generateQRCode();
+        }
     });
-}
-
-let previousFormState = {};
-
-function hasFormChanged() {
-    const currentFormState = extractFormData();
-    const isChanged = JSON.stringify(currentFormState) !== JSON.stringify(previousFormState);
-    previousFormState = currentFormState;
-    return isChanged;
-}
+    if (areFieldsValid()) {
+        generateQRCode();
+    }
+});

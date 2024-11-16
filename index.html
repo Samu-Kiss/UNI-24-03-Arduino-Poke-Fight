@@ -12,6 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 <body>
 <div class="container">
@@ -131,16 +134,19 @@
                 <i class="fas fa-dice"></i> Generar Todo Random
             </button>
             <button type="button" onclick="copyToClipboard()">
-                <i class="fas fa-copy"></i> Guardar en el Portapapeles
+                <i class="fas fa-code"></i> Copiar Codigo
             </button>
             <button type="button" onclick="generateShareableId()">
                 <i class="fas fa-share"></i> Generar ID
             </button>
-            <button type="button" onclick="importFromId(prompt('Introduce el ID compartible:'))">
+            <button type="button" onclick="importFromId(prompt('Introduce el ID:'))">
                 <i class="fas fa-download"></i> Importar ID
             </button>
             <button type="button" onclick="openPopup()">
                 <i class="fas fa-qrcode"></i> Importar Datos
+            </button>
+            <button type="button" class="clear-button" onclick="confirmClearForm()">
+                <i class="fas fa-trash"></i> Borrar
             </button>
         </div>
 
@@ -162,6 +168,8 @@
             </div>
         </div>
     </div>
+
+
 
 </div>
 <script src="script.js"></script>
