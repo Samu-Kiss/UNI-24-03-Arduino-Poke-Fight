@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
 </head>
 <body>
 <div class="container">
@@ -128,7 +131,21 @@
             <button type="button" onclick="copyToClipboard()">
                 <i class="fas fa-copy"></i> Guardar en el Portapapeles
             </button>
+            <button type="button" onclick="generateShareableId()">
+                <i class="fas fa-share"></i> Generar ID
+            </button>
+            <button type="button" onclick="importFromId(prompt('Introduce el ID compartible:'))">
+                <i class="fas fa-download"></i> Importar ID
+            </button>
+            <button type="button" onclick="importFromQRCode()">
+                <i class="fas fa-qrcode"></i> Importar desde QR
+            </button>
+            <button type="button" onclick="importFromCamera()">
+                <i class="fas fa-camera"></i> Importar desde Cámara
+            </button>
         </div>
+
+        <div id="qrcode"></div>
     </form>
 </div>
 <script src="script.js"></script>

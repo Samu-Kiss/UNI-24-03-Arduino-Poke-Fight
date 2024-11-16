@@ -98,6 +98,7 @@ function generateAllRandomPokemon() {
     generateRandomPokemon('player1', 2);
     generateRandomPokemon('player2', 1);
     generateRandomPokemon('player2', 2);
+    generateQRCode();
 }
 
 // Función para copiar la información al portapapeles
@@ -190,5 +191,186 @@ function validateNames(player) {
                 updateColorPreview(colorInput); // Actualizar el cuadro de previsualización
             }
         }
+    });
+}
+
+//Funcion de generar un id unico
+function generateShareableId() {
+    if (!document.getElementById('pokemon-form').checkValidity()) {
+        alert('Por favor, completa todos los campos antes de copiar el texto.');
+        return;
+    }
+    const players = ['player1', 'player2'];
+    const data = {};
+
+    players.forEach(player => {
+        data[player] = [];
+        for (let i = 1; i <= 2; i++) {
+            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
+
+            data[player].push({ name, type, color, life });
+        }
+    });
+
+    const jsonString = JSON.stringify(data);
+    const compressed = LZString.compressToEncodedURIComponent(jsonString); // Compactar
+    navigator.clipboard.writeText(compressed).then(() => {
+        alert('El texto se ha copiado al portapapeles');
+    }, () => {
+        alert('No se pudo copiar el texto al portapapeles');
+    });
+    return compressed;
+}
+
+function importFromId(sharedId) {
+    try {
+        const jsonString = LZString.decompressFromEncodedURIComponent(sharedId); // Descomprimir
+        const data = JSON.parse(jsonString);
+
+        Object.keys(data).forEach(player => {
+            data[player].forEach((pokemon, index) => {
+                const pokemonNum = index + 1;
+                document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value = pokemon.name;
+                document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`).value = pokemon.type;
+                document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`).value = pokemon.color;
+                document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`).value = pokemon.life;
+                document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = pokemon.life;
+
+                updateColorPreview(document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`));
+            });
+        });
+
+        alert("Configuración importada exitosamente.");
+    } catch (error) {
+        console.error(error);
+        alert("ID inválido. Por favor verifica e intenta nuevamente.");
+    }
+}
+// Función para generar el QR con la información
+function generateQRCode() {
+    if (!document.getElementById('pokemon-form').checkValidity()) {
+        document.getElementById('qrcode').innerHTML = ""; // Limpiar el QR si no están todos los campos completos
+        return;
+    }
+    const players = ['player1', 'player2'];
+    const data = {};
+
+    players.forEach(player => {
+        data[player] = [];
+        for (let i = 1; i <= 2; i++) {
+            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
+
+            data[player].push({ name, type, color, life });
+        }
+    });
+
+    const jsonString = JSON.stringify(data);
+    const compressed = LZString.compressToEncodedURIComponent(jsonString); // Compactar
+
+    const qrCodeContainer = document.getElementById('qrcode');
+    qrCodeContainer.innerHTML = ""; // Limpiar el contenedor del QR
+    new QRCode(qrCodeContainer, {
+        text: compressed,
+        width: 200,
+        height: 200
+    });
+}
+
+// Agregar event listeners para actualizar el QR automáticamente cuando los campos cambien
+document.addEventListener('input', () => {
+    generateQRCode();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateQRCode();
+});
+
+// Función para importar datos desde un código QR
+function importFromQRCode() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        try {
+            const imageDataUrl = await readFileAsDataURL(file);
+            const image = new Image();
+            image.src = imageDataUrl;
+            image.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(image, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+                if (code) {
+                    importFromId(code.data);
+                } else {
+                    alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
+                }
+            };
+        } catch (error) {
+            console.error(error);
+            alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
+        }
+    };
+    input.click();
+}
+
+// Función para importar datos desde un código QR usando la cámara
+function importFromCamera() {
+    const video = document.createElement('video');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let stream;
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((mediaStream) => {
+            stream = mediaStream;
+            video.srcObject = stream;
+            video.setAttribute('playsinline', true); // Requerido para iOS
+            video.play();
+            requestAnimationFrame(tick);
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('No se pudo acceder a la cámara.');
+        });
+
+    function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+            if (code) {
+                importFromId(code.data);
+                stream.getTracks().forEach(track => track.stop());
+                return;
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+}
+
+// Utilidad para leer el archivo como Data URL
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
     });
 }
