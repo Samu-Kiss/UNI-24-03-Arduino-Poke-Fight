@@ -308,40 +308,49 @@ function activateCamera() {
     const canvas = document.getElementById('camera-canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    // Solicitamos permisos para usar la cámara
+    // Solicitar acceso a la cámara
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then((stream) => {
-            cameraStream = stream; // Guardamos el stream para detenerlo después
+            cameraStream = stream; // Guardar el stream para detenerlo después
             video.srcObject = stream;
             video.play();
 
+            // Iniciar escaneo en bucle
             function scanQRCode() {
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    // Configurar dimensiones del canvas
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
+
+                    // Dibujar la imagen del video en el canvas
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Obtener los datos de la imagen
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+                    // Intentar leer el código QR
+                    const code = jsQR(imageData.data, canvas.width, canvas.height, {
+                        inversionAttempts: "dontInvert", // Mejor para códigos estándar
+                    });
 
                     if (code) {
-                        // Si el QR es leído correctamente, importamos los datos
-                        importFromId(code.data);
-                        closePopup(); // Cerrar el popup
-                        alert('QR escaneado con éxito: ' + code.data);
-                        return;
+                        // Código QR detectado
+                        importFromId(code.data); // Importar datos
+                        closePopup(); // Cerrar popup
+                        alert(`QR escaneado con éxito: ${code.data}`);
+                        return; // Salir del bucle
                     }
                 }
 
-                // Continuamos escaneando si no hemos detectado un código QR
+                // Continuar escaneando si no hay un código QR detectado
                 requestAnimationFrame(scanQRCode);
             }
 
-            // Inicia el bucle de escaneo
             requestAnimationFrame(scanQRCode);
         })
         .catch((err) => {
             console.error('Error al activar la cámara:', err);
-            alert('No se pudo activar la cámara. Verifica los permisos y vuelve a intentarlo.');
+            alert('No se pudo activar la cámara. Por favor verifica los permisos.');
         });
 }
 
