@@ -328,71 +328,25 @@ function importFromQRCode() {
     input.click();
 }
 
-// Función para importar datos desde un código QR usando la cámara en un popup
+// Función para importar datos desde un código QR usando la cámara
 function importFromCamera() {
     const video = document.createElement('video');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     let stream;
 
-    // Crear un popup para mostrar la cámara
-    const popup = document.createElement('div');
-    popup.id = 'camera-popup';
-    popup.style.position = 'fixed';
-    popup.style.top = '50%';
-    popup.style.left = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    popup.style.width = '100%';
-    popup.style.maxWidth = '400px';
-    popup.style.backgroundColor = '#fff';
-    popup.style.padding = '20px';
-    popup.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.5)';
-    popup.style.zIndex = '1000';
-    popup.style.borderRadius = '8px';
-
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Cerrar';
-    closeButton.style.marginBottom = '10px';
-    closeButton.onclick = () => {
-        stream.getTracks().forEach(track => track.stop());
-        document.body.removeChild(popup);
-    };
-
-    const switchCameraButton = document.createElement('button');
-    switchCameraButton.textContent = 'Cambiar Cámara';
-    switchCameraButton.style.marginBottom = '10px';
-    switchCameraButton.style.marginLeft = '10px';
-    switchCameraButton.onclick = () => {
-        // Parar el stream actual y volver a pedir acceso con la cámara opuesta
-        stream.getTracks().forEach(track => track.stop());
-        facingMode = facingMode === 'environment' ? 'user' : 'environment';
-        startCamera(facingMode);
-    };
-
-    popup.appendChild(closeButton);
-    popup.appendChild(switchCameraButton);
-    popup.appendChild(video);
-    document.body.appendChild(popup);
-
-    let facingMode = 'environment';
-    startCamera(facingMode);
-
-    function startCamera(mode) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: mode } })
-            .then((mediaStream) => {
-                stream = mediaStream;
-                video.srcObject = stream;
-                video.setAttribute('playsinline', true); // Requerido para iOS
-                video.style.width = '100%';
-                video.style.borderRadius = '8px';
-                video.play();
-                requestAnimationFrame(tick);
-            })
-            .catch((err) => {
-                console.error(err);
-                alert('No se pudo acceder a la cámara.');
-            });
-    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((mediaStream) => {
+            stream = mediaStream;
+            video.srcObject = stream;
+            video.setAttribute('playsinline', true); // Requerido para iOS
+            video.play();
+            requestAnimationFrame(tick);
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('No se pudo acceder a la cámara.');
+        });
 
     function tick() {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -404,7 +358,6 @@ function importFromCamera() {
             if (code) {
                 importFromId(code.data);
                 stream.getTracks().forEach(track => track.stop());
-                document.body.removeChild(popup);
                 return;
             }
         }
