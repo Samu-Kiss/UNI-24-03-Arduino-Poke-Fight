@@ -1,47 +1,28 @@
-// Mapeo de nombres de Pokémon a sus tipos y colores
 const pokemonData = {
     "Pikachu": { "type": "Electrico", "color": "#FFFF00" },
     "Jolteon": { "type": "Electrico", "color": "#FFD700" },
     "Zapdos": { "type": "Electrico", "color": "#F4C542" },
-
     "Charmander": { "type": "Fuego", "color": "#FFA500" },
     "Flareon": { "type": "Fuego", "color": "#FF4500" },
     "Moltres": { "type": "Fuego", "color": "#FF6347" },
-
     "Squirtle": { "type": "Agua", "color": "#00BFFF" },
     "Vaporeon": { "type": "Agua", "color": "#1E90FF" },
     "Gyarados": { "type": "Agua", "color": "#4169E1" },
-
     "Bulbasaur": { "type": "Planta", "color": "#7CFC00" },
     "Leafeon": { "type": "Planta", "color": "#32CD32" },
     "Venusaur": { "type": "Planta", "color": "#228B22" }
 };
 
-// Lista de nombres de Pokémon para generación aleatoria (solo los definidos en pokemonData)
 const pokemonNames = Object.keys(pokemonData);
 
-// Función para generar un color aleatorio en formato hexadecimal (se mantiene por si se necesita)
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-// Función para actualizar el cuadro de previsualización de color
 function updateColorPreview(input) {
-    const previewId = input.name + '-preview';
-    const previewElement = document.getElementById(previewId);
+    const previewElement = document.getElementById(`${input.name}-preview`);
     if (previewElement) {
         previewElement.style.backgroundColor = input.value;
     }
 }
 
-// Función para generar un Pokémon aleatorio individual respetando las asociaciones
 function generateRandomPokemon(player, pokemonNum) {
-    // Generar un nombre único que no esté en uso
     let randomName;
     do {
         randomName = pokemonNames[Math.floor(Math.random() * pokemonNames.length)];
@@ -50,58 +31,55 @@ function generateRandomPokemon(player, pokemonNum) {
     const nameInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`);
     nameInput.value = randomName;
 
-    // Obtener tipo y color basados en el mapeo
-    const type = pokemonData[randomName].type;
-    const color = pokemonData[randomName].color;
+    const { type, color } = pokemonData[randomName];
+    setTypeAndColor(player, pokemonNum, type, color);
 
-    // Establecer el tipo en el select correspondiente
-    const typeSelect = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`);
-    let typeFound = false;
-    for (let i = 0; i < typeSelect.options.length; i++) {
-        if (typeSelect.options[i].value.toLowerCase() === type.toLowerCase()) {
-            typeSelect.selectedIndex = i;
-            typeFound = true;
-            break;
-        }
-    }
-    // Si el tipo no está en el select, agregarlo
-    if (!typeFound) {
-        const newOption = document.createElement("option");
-        newOption.value = type;
-        newOption.text = type.charAt(0).toUpperCase() + type.slice(1);
-        typeSelect.add(newOption);
-        typeSelect.selectedIndex = typeSelect.options.length - 1;
-    }
-
-    // Establecer el color
-    const colorInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`);
-    colorInput.value = color;
-    updateColorPreview(colorInput); // Actualizar el cuadro de previsualización
-
-    // Generar vida aleatoria
-    const randomLife = Math.floor(Math.random() * 401) + 100; // 100 a 500
+    const randomLife = Math.floor(Math.random() * 401) + 100;
     const lifeInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`);
     lifeInput.value = randomLife;
     document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = randomLife;
 }
 
-// Función para verificar si un nombre ya está en uso para el mismo jugador
+function setTypeAndColor(player, pokemonNum, type, color) {
+    const typeSelect = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`);
+    setSelectValue(typeSelect, type);
+
+    const colorInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`);
+    colorInput.value = color;
+    updateColorPreview(colorInput);
+}
+
+function setSelectValue(selectElement, value) {
+    let optionFound = false;
+    for (let i = 0; i < selectElement.options.length; i++) {
+        if (selectElement.options[i].value.toLowerCase() === value.toLowerCase()) {
+            selectElement.selectedIndex = i;
+            optionFound = true;
+            break;
+        }
+    }
+    if (!optionFound) {
+        const newOption = document.createElement("option");
+        newOption.value = value;
+        newOption.text = value.charAt(0).toUpperCase() + value.slice(1);
+        selectElement.add(newOption);
+        selectElement.selectedIndex = selectElement.options.length - 1;
+    }
+}
+
 function isNameInUse(name, player) {
     const name1 = document.querySelector(`[name="${player}-pokemon1-name"]`).value;
     const name2 = document.querySelector(`[name="${player}-pokemon2-name"]`).value;
     return name === name1 || name === name2;
 }
 
-// Función para generar todos los Pokémon aleatorios
 function generateAllRandomPokemon() {
-    generateRandomPokemon('player1', 1);
-    generateRandomPokemon('player1', 2);
-    generateRandomPokemon('player2', 1);
-    generateRandomPokemon('player2', 2);
+    ['player1', 'player2'].forEach(player => {
+        [1, 2].forEach(pokemonNum => generateRandomPokemon(player, pokemonNum));
+    });
     generateQRCode();
 }
 
-// Función para copiar la información al portapapeles
 function copyToClipboard() {
     if (!document.getElementById('pokemon-form').checkValidity()) {
         alert('Por favor, completa todos los campos antes de copiar el texto.');
@@ -110,8 +88,7 @@ function copyToClipboard() {
     const formData = new FormData(document.getElementById('pokemon-form'));
     let resultString = '';
 
-    const playerKeys = ['player1', 'player2'];
-    playerKeys.forEach(player => {
+    ['player1', 'player2'].forEach(player => {
         resultString += `Pokemon ${player}[2] = {\n`;
         for (let i = 1; i <= 2; i++) {
             const name = formData.get(`${player}-pokemon${i}-name`);
@@ -133,90 +110,42 @@ function copyToClipboard() {
     });
 }
 
-// Función para convertir hexadecimal a RGB
 function hexToRgb(hex) {
     const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return { r, g, b };
+    return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+    };
 }
 
-// Función para validar los nombres y sus asociaciones
 function validateNames(player) {
     const name1 = document.querySelector(`[name="${player}-pokemon1-name"]`).value;
     const name2 = document.querySelector(`[name="${player}-pokemon2-name"]`).value;
 
     if (name1 && name2 && name1 === name2) {
         alert('Los nombres de los Pokémon no pueden ser iguales para el mismo jugador.');
+        document.querySelector(`[name="${player}-pokemon2-name"]`).value = '';
         return;
     }
 
-    // Validar cada Pokémon individualmente
     [1, 2].forEach(pokemonNum => {
         const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
         if (pokemonData[name]) {
-            const typeSelect = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`);
-            const colorInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`);
-            const expectedType = pokemonData[name].type;
-            const expectedColor = pokemonData[name].color.toLowerCase();
-
-            // Validar Tipo
-            if (typeSelect.value.toLowerCase() !== expectedType.toLowerCase()) {
-                alert(`El tipo de ${name} debe ser ${expectedType}. Se ajustará automáticamente.`);
-                // Ajustar el tipo automáticamente
-                let typeFound = false;
-                for (let i = 0; i < typeSelect.options.length; i++) {
-                    if (typeSelect.options[i].value.toLowerCase() === expectedType.toLowerCase()) {
-                        typeSelect.selectedIndex = i;
-                        typeFound = true;
-                        break;
-                    }
-                }
-                // Si el tipo no está en el select, agregarlo
-                if (!typeFound) {
-                    const newOption = document.createElement("option");
-                    newOption.value = expectedType;
-                    newOption.text = expectedType.charAt(0).toUpperCase() + expectedType.slice(1);
-                    typeSelect.add(newOption);
-                    typeSelect.selectedIndex = typeSelect.options.length - 1;
-                }
-            }
-
-            // Validar Color
-            if (colorInput.value.toLowerCase() !== expectedColor) {
-                alert(`El color de ${name} debe ser ${expectedColor}. Se ajustará automáticamente.`);
-                // Ajustar el color automáticamente
-                colorInput.value = pokemonData[name].color;
-                updateColorPreview(colorInput); // Actualizar el cuadro de previsualización
-            }
+            const { type, color } = pokemonData[name];
+            setTypeAndColor(player, pokemonNum, type, color);
         }
     });
 }
 
-//Funcion de generar un id unico
 function generateShareableId() {
     if (!document.getElementById('pokemon-form').checkValidity()) {
         alert('Por favor, completa todos los campos antes de copiar el texto.');
         return;
     }
-    const players = ['player1', 'player2'];
-    const data = {};
-
-    players.forEach(player => {
-        data[player] = [];
-        for (let i = 1; i <= 2; i++) {
-            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
-            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
-            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
-            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
-
-            data[player].push({ name, type, color, life });
-        }
-    });
-
+    const data = extractFormData();
     const jsonString = JSON.stringify(data);
-    const compressed = LZString.compressToEncodedURIComponent(jsonString); // Compactar
+    const compressed = LZString.compressToEncodedURIComponent(jsonString);
     navigator.clipboard.writeText(compressed).then(() => {
         alert('El texto se ha copiado al portapapeles');
     }, () => {
@@ -225,11 +154,25 @@ function generateShareableId() {
     return compressed;
 }
 
+function extractFormData() {
+    const data = {};
+    ['player1', 'player2'].forEach(player => {
+        data[player] = [];
+        for (let i = 1; i <= 2; i++) {
+            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
+            data[player].push({ name, type, color, life });
+        }
+    });
+    return data;
+}
+
 function importFromId(sharedId) {
     try {
-        const jsonString = LZString.decompressFromEncodedURIComponent(sharedId); // Descomprimir
+        const jsonString = LZString.decompressFromEncodedURIComponent(sharedId);
         const data = JSON.parse(jsonString);
-
         Object.keys(data).forEach(player => {
             data[player].forEach((pokemon, index) => {
                 const pokemonNum = index + 1;
@@ -238,67 +181,67 @@ function importFromId(sharedId) {
                 document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`).value = pokemon.color;
                 document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`).value = pokemon.life;
                 document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = pokemon.life;
-
                 updateColorPreview(document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`));
             });
         });
-
         alert("Configuración importada exitosamente.");
     } catch (error) {
         console.error(error);
         alert("ID inválido. Por favor verifica e intenta nuevamente.");
     }
 }
-// Función para generar el QR con la información
+
 function generateQRCode() {
-    if (!document.getElementById('pokemon-form').checkValidity()) {
-        document.getElementById('qrcode').innerHTML = ""; // Limpiar el QR si no están todos los campos completos
+    const form = document.getElementById('pokemon-form');
+    const qrCodeContainer = document.getElementById('qrcode');
+
+    if (!form.checkValidity()) {
+        qrCodeContainer.innerHTML = "";
         return;
     }
-    const players = ['player1', 'player2'];
-    const data = {};
 
-    players.forEach(player => {
-        data[player] = [];
-        for (let i = 1; i <= 2; i++) {
-            const name = document.querySelector(`[name="${player}-pokemon${i}-name"]`).value;
-            const type = document.querySelector(`[name="${player}-pokemon${i}-type"]`).value;
-            const color = document.querySelector(`[name="${player}-pokemon${i}-color"]`).value;
-            const life = document.querySelector(`[name="${player}-pokemon${i}-life"]`).value;
-
-            data[player].push({ name, type, color, life });
-        }
-    });
-
+    const data = extractFormData();
     const jsonString = JSON.stringify(data);
-    const compressed = LZString.compressToEncodedURIComponent(jsonString); // Compactar
+    const compressed = LZString.compressToEncodedURIComponent(jsonString);
 
-    const qrCodeContainer = document.getElementById('qrcode');
-    qrCodeContainer.innerHTML = ""; // Limpiar el contenedor del QR
+    if (compressed.length > 1056) {
+        alert("Los datos son demasiado grandes para generar un QR.");
+        qrCodeContainer.innerHTML = "";
+        return;
+    }
+
+    qrCodeContainer.innerHTML = "";
     new QRCode(qrCodeContainer, {
         text: compressed,
         width: 200,
-        height: 200
+        height: 200,
+        correctLevel: QRCode.CorrectLevel.L,
     });
 }
 
-// Agregar event listeners para actualizar el QR automáticamente cuando los campos cambien
-document.addEventListener('input', () => {
-    generateQRCode();
-});
-
+document.addEventListener('input', generateQRCode);
 document.addEventListener('DOMContentLoaded', () => {
-    generateQRCode();
+    const form = document.getElementById('pokemon-form');
+    form.addEventListener('input', () => {
+        if (areFieldsValid() && hasFormChanged()) {
+            generateQRCode();
+        }
+    });
+    if (areFieldsValid()) {
+        generateQRCode();
+    }
 });
 
 function openPopup() {
-    const popup = document.getElementById('import-popup');
-    popup.style.display = 'flex';
+    document.getElementById('import-popup').style.display = 'flex';
 }
 
 function closePopup() {
-    const popup = document.getElementById('import-popup');
-    popup.style.display = 'none';
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    document.getElementById('import-popup').style.display = 'none';
 }
 
 let cameraStream = null;
@@ -308,65 +251,37 @@ function activateCamera() {
     const canvas = document.getElementById('camera-canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    // Solicitar acceso a la cámara
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then((stream) => {
-            cameraStream = stream; // Guardar el stream para detenerlo después
+            cameraStream = stream;
             video.srcObject = stream;
             video.play();
-
-            // Iniciar escaneo en bucle
-            function scanQRCode() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    // Configurar dimensiones del canvas
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-
-                    // Dibujar la imagen del video en el canvas
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    // Obtener los datos de la imagen
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-                    // Intentar leer el código QR
-                    const code = jsQR(imageData.data, canvas.width, canvas.height, {
-                        inversionAttempts: "dontInvert", // Mejor para códigos estándar
-                    });
-
-                    if (code) {
-                        // Código QR detectado
-                        importFromId(code.data); // Importar datos
-                        closePopup(); // Cerrar popup
-                        alert(`QR escaneado con éxito: ${code.data}`);
-                        return; // Salir del bucle
-                    }
-                }
-
-                // Continuar escaneando si no hay un código QR detectado
-                requestAnimationFrame(scanQRCode);
-            }
-
             requestAnimationFrame(scanQRCode);
         })
         .catch((err) => {
             console.error('Error al activar la cámara:', err);
             alert('No se pudo activar la cámara. Por favor verifica los permisos.');
         });
-}
 
-function closePopup() {
-    // Detenemos la cámara si está activa
-    if (cameraStream) {
-        cameraStream.getTracks().forEach((track) => track.stop());
-        cameraStream = null;
+    function scanQRCode() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "dontInvert" });
+
+            if (code) {
+                importFromId(code.data);
+                closePopup();
+                alert(`QR escaneado con éxito: ${code.data}`);
+                return;
+            }
+        }
+        requestAnimationFrame(scanQRCode);
     }
-
-    const popup = document.getElementById('import-popup');
-    popup.style.display = 'none';
 }
 
-
-// Función para importar datos desde un código QR
 function importFromQRCode() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -374,9 +289,7 @@ function importFromQRCode() {
 
     input.onchange = async (event) => {
         const file = event.target.files[0];
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         try {
             const imageDataUrl = await readFileAsDataURL(file);
@@ -393,7 +306,7 @@ function importFromQRCode() {
 
                 if (code) {
                     importFromId(code.data);
-                    closePopup(); // Cerrar el popup al importar exitosamente
+                    closePopup();
                     alert('QR importado con éxito: ' + code.data);
                 } else {
                     alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
@@ -408,7 +321,6 @@ function importFromQRCode() {
     input.click();
 }
 
-// Función para importar datos desde un código QR usando la cámara
 function importFromCamera(callbacks = {}) {
     const video = document.createElement('video');
     const canvas = document.createElement('canvas');
@@ -419,7 +331,7 @@ function importFromCamera(callbacks = {}) {
         .then((mediaStream) => {
             stream = mediaStream;
             video.srcObject = stream;
-            video.setAttribute('playsinline', true); // Requerido para iOS
+            video.setAttribute('playsinline', true);
             video.play();
             requestAnimationFrame(tick);
         })
@@ -447,7 +359,6 @@ function importFromCamera(callbacks = {}) {
     }
 }
 
-// Utilidad para leer el archivo como Data URL
 function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -455,4 +366,25 @@ function readFileAsDataURL(file) {
         reader.onerror = (error) => reject(error);
         reader.readAsDataURL(file);
     });
+}
+
+function areFieldsValid() {
+    return ['player1', 'player2'].every(player => {
+        return [1, 2].every(pokemonNum => {
+            const name = document.querySelector(`[name="${player}-pokemon${pokemonNum}-name"]`).value;
+            const type = document.querySelector(`[name="${player}-pokemon${pokemonNum}-type"]`).value;
+            const color = document.querySelector(`[name="${player}-pokemon${pokemonNum}-color"]`).value;
+            const life = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`).value;
+            return name && type && color && life;
+        });
+    });
+}
+
+let previousFormState = {};
+
+function hasFormChanged() {
+    const currentFormState = extractFormData();
+    const isChanged = JSON.stringify(currentFormState) !== JSON.stringify(previousFormState);
+    previousFormState = currentFormState;
+    return isChanged;
 }
