@@ -21,13 +21,18 @@
     <h1>Generador de Pokemones</h1>
     <form id="pokemon-form">
         <div id="player1" class="player player1">
-            <h3>Player 1</h3>
+            <h3>player1</h3>
             <div class="pokemon" id="player1-pokemon1">
                 <h4>
                     Pokémon 1 (Principal)
+                    <div class="button-stack">
                     <button type="button" class="random-button" onclick="generateRandomPokemon('player1', 1)">
                         <i class="fas fa-random"></i> Random
                     </button>
+                    <button type="button" class="delete-button" onclick="deletePokemon('player1', 1)">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                    </div>
                 </h4>
                 <label>Nombre: <input type="text" name="player1-pokemon1-name" required oninput="validateNames('player1')"></label>
                 <label>Tipo:
@@ -49,9 +54,14 @@
             <div class="pokemon" id="player1-pokemon2">
                 <h4>
                     Pokémon 2 (Secundario)
-                    <button type="button" class="random-button" onclick="generateRandomPokemon('player1', 2)">
-                        <i class="fas fa-random"></i> Random
-                    </button>
+                    <div class="button-stack">
+                        <button type="button" class="random-button" onclick="generateRandomPokemon('player1', 2)">
+                            <i class="fas fa-random"></i> Random
+                        </button>
+                        <button type="button" class="delete-button" onclick="deletePokemon('player1', 2)">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
                 </h4>
                 <label>Nombre: <input type="text" name="player1-pokemon2-name" required oninput="validateNames('player1')"></label>
                 <label>Tipo:
@@ -75,13 +85,18 @@
         </div>
 
         <div id="player2" class="player player2">
-            <h3>Player 2</h3>
+            <h3>player2</h3>
             <div class="pokemon" id="player2-pokemon1">
                 <h4>
                     Pokémon 1 (Principal)
-                    <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 1)">
-                        <i class="fas fa-random"></i> Random
-                    </button>
+                    <div class="button-stack">
+                        <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 1)">
+                            <i class="fas fa-random"></i> Random
+                        </button>
+                        <button type="button" class="delete-button" onclick="deletePokemon('player2', 1)">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
                 </h4>
                 <label>Nombre: <input type="text" name="player2-pokemon1-name" required oninput="validateNames('player2')"></label>
                 <label>Tipo:
@@ -105,9 +120,14 @@
             <div class="pokemon" id="player2-pokemon2">
                 <h4>
                     Pokémon 2 (Secundario)
-                    <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 2)">
-                        <i class="fas fa-random"></i> Random
-                    </button>
+                    <div class="button-stack">
+                        <button type="button" class="random-button" onclick="generateRandomPokemon('player2', 2)">
+                            <i class="fas fa-random"></i> Random
+                        </button>
+                        <button type="button" class="delete-button" onclick="deletePokemon('player2', 2)">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
                 </h4>
                 <label>Nombre: <input type="text" name="player2-pokemon2-name" required oninput="validateNames('player2')"></label>
                 <label>Tipo:

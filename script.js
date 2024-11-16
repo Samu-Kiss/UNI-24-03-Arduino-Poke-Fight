@@ -148,6 +148,10 @@ function generateRandomPokemon(player, pokemonNum) {
     const lifeInput = document.querySelector(`[name="${player}-pokemon${pokemonNum}-life"]`);
     lifeInput.value = randomLife;
     document.getElementById(`${player}-pokemon${pokemonNum}-life-value`).textContent = randomLife;
+    showToast(`Pokémon ${pokemonNum} del ${player === 'player1' ? 'jugador 1' : 'jugador 2'} generado.`);
+    if(areFieldsValid()){
+        generateQRCode();
+    }
 }
 
 function generateAllRandomPokemon() {
@@ -155,6 +159,16 @@ function generateAllRandomPokemon() {
         [1, 2].forEach(pokemonNum => generateRandomPokemon(player, pokemonNum));
     });
     generateQRCode();
+}
+
+function deletePokemon(player, pokemonNum) {
+    const pokemonDiv = document.getElementById(`${player}-pokemon${pokemonNum}`);
+    if (pokemonDiv) {
+        pokemonDiv.querySelectorAll('input, select').forEach(input => input.value = '');
+        pokemonDiv.querySelector('span[id$="-life-value"]').textContent = '250';
+        showToast(`Pokémon ${pokemonNum} del ${player === 'player1' ? 'jugador 1' : 'jugador 2'} eliminado.`);
+        generateQRCode();
+    }
 }
 
 // Clipboard and QR code functions
@@ -220,6 +234,7 @@ function importFromId(sharedId) {
             });
         });
         showToast("Configuración importada exitosamente.");
+        generateQRCode();
     } catch (error) {
         console.error(error);
         showToast("ID inválido. Por favor verifica e intenta nuevamente.", "error");
@@ -286,6 +301,7 @@ function activateCamera() {
                 importFromId(code.data);
                 closePopup();
                 showToast(`QR escaneado con éxito`);
+                generateQRCode();
                 return;
             }
         }
@@ -319,6 +335,7 @@ function importFromQRCode() {
                     importFromId(code.data);
                     closePopup();
                     showToast('QR importado con éxito');
+                    generateQRCode();
                 } else {
                     showToast('No se pudo leer el código QR. Por favor intenta nuevamente.', "error");
                 }
@@ -330,44 +347,6 @@ function importFromQRCode() {
     };
 
     input.click();
-}
-
-function importFromCamera(callbacks = {}) {
-    const video = document.createElement('video');
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    let stream;
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then((mediaStream) => {
-            stream = mediaStream;
-            video.srcObject = stream;
-            video.setAttribute('playsinline', true);
-            video.play();
-            requestAnimationFrame(tick);
-        })
-        .catch((err) => {
-            console.error(err);
-            if (callbacks.onError) callbacks.onError(err);
-        });
-
-    function tick() {
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-            if (code) {
-                importFromId(code.data);
-                if (callbacks.onSuccess) callbacks.onSuccess(code.data);
-                stream.getTracks().forEach(track => track.stop());
-                return;
-            }
-        }
-        requestAnimationFrame(tick);
-    }
 }
 
 // Form and popup management functions
