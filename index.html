@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 <div class="container">
@@ -137,16 +138,30 @@
             <button type="button" onclick="importFromId(prompt('Introduce el ID compartible:'))">
                 <i class="fas fa-download"></i> Importar ID
             </button>
-            <button type="button" onclick="importFromQRCode()">
-                <i class="fas fa-qrcode"></i> Importar desde QR
-            </button>
-            <button type="button" onclick="importFromCamera()">
-                <i class="fas fa-camera"></i> Importar desde Cámara
+            <button type="button" onclick="openPopup()">
+                <i class="fas fa-qrcode"></i> Importar Datos
             </button>
         </div>
 
         <div id="qrcode"></div>
     </form>
+
+    <div id="import-popup" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePopup()">✖</button>
+            <h2>Importar Datos</h2>
+            <p>Selecciona un método para importar:</p>
+            <div id="camera-container">
+                <video id="camera-preview" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+            </div>
+            <div class="button-container">
+                <button onclick="activateCamera()">Activar Cámara</button>
+                <button onclick="importFromQRCode()">Subir desde Archivo</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 <script src="script.js"></script>
 </body>

@@ -291,11 +291,73 @@ document.addEventListener('DOMContentLoaded', () => {
     generateQRCode();
 });
 
+function openPopup() {
+    const popup = document.getElementById('import-popup');
+    popup.style.display = 'flex';
+}
+
+function closePopup() {
+    const popup = document.getElementById('import-popup');
+    popup.style.display = 'none';
+}
+
+let cameraStream = null;
+
+function activateCamera() {
+    const video = document.getElementById('camera-preview');
+    const canvas = document.getElementById('camera-canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((stream) => {
+            cameraStream = stream; // Guardamos el stream para detenerlo después
+            video.srcObject = stream;
+            video.play();
+
+            function scanQRCode() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+                    if (code) {
+                        importFromId(code.data);
+                        closePopup(); // Cerrar el popup al escanear exitosamente
+                        alert('QR escaneado con éxito: ' + code.data);
+                        return;
+                    }
+                }
+                requestAnimationFrame(scanQRCode);
+            }
+
+            requestAnimationFrame(scanQRCode);
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('No se pudo activar la cámara: ' + err.message);
+        });
+}
+
+function closePopup() {
+    // Detenemos la cámara si está activa
+    if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+        cameraStream = null;
+    }
+
+    const popup = document.getElementById('import-popup');
+    popup.style.display = 'none';
+}
+
+
 // Función para importar datos desde un código QR
 function importFromQRCode() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
+
     input.onchange = async (event) => {
         const file = event.target.files[0];
         if (!file) {
@@ -310,12 +372,15 @@ function importFromQRCode() {
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
                 canvas.height = image.height;
-                const ctx = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(image, 0, 0);
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, canvas.width, canvas.height);
+
                 if (code) {
                     importFromId(code.data);
+                    closePopup(); // Cerrar el popup al importar exitosamente
+                    alert('QR importado con éxito: ' + code.data);
                 } else {
                     alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
                 }
@@ -325,11 +390,12 @@ function importFromQRCode() {
             alert('No se pudo leer el código QR. Por favor intenta nuevamente.');
         }
     };
+
     input.click();
 }
 
 // Función para importar datos desde un código QR usando la cámara
-function importFromCamera() {
+function importFromCamera(callbacks = {}) {
     const video = document.createElement('video');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -345,7 +411,7 @@ function importFromCamera() {
         })
         .catch((err) => {
             console.error(err);
-            alert('No se pudo acceder a la cámara.');
+            if (callbacks.onError) callbacks.onError(err);
         });
 
     function tick() {
@@ -355,8 +421,10 @@ function importFromCamera() {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const code = jsQR(imageData.data, canvas.width, canvas.height);
+
             if (code) {
                 importFromId(code.data);
+                if (callbacks.onSuccess) callbacks.onSuccess(code.data);
                 stream.getTracks().forEach(track => track.stop());
                 return;
             }
