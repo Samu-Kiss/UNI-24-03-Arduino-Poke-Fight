@@ -308,6 +308,7 @@ function activateCamera() {
     const canvas = document.getElementById('camera-canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+    // Solicitamos permisos para usar la cámara
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then((stream) => {
             cameraStream = stream; // Guardamos el stream para detenerlo después
@@ -323,20 +324,24 @@ function activateCamera() {
                     const code = jsQR(imageData.data, canvas.width, canvas.height);
 
                     if (code) {
+                        // Si el QR es leído correctamente, importamos los datos
                         importFromId(code.data);
-                        closePopup(); // Cerrar el popup al escanear exitosamente
+                        closePopup(); // Cerrar el popup
                         alert('QR escaneado con éxito: ' + code.data);
                         return;
                     }
                 }
+
+                // Continuamos escaneando si no hemos detectado un código QR
                 requestAnimationFrame(scanQRCode);
             }
 
+            // Inicia el bucle de escaneo
             requestAnimationFrame(scanQRCode);
         })
         .catch((err) => {
-            console.error(err);
-            alert('No se pudo activar la cámara: ' + err.message);
+            console.error('Error al activar la cámara:', err);
+            alert('No se pudo activar la cámara. Verifica los permisos y vuelve a intentarlo.');
         });
 }
 
