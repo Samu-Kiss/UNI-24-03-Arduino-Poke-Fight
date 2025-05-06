@@ -1,7 +1,7 @@
 # ⚡ PokeFight - The Arduino Game
 
 ## 🚀 Overview
-This project was created as my **Arduino Final Project**. It’s a **web application** that lets you quickly and visually design and generate “Pokémon” data for your Arduino projects.
+This project was created as my **Arduino Final Project**. It’s a **web application** that lets you quickly and visually design and generate “Pokémon” data that can be inserted in the Arduino Sketch `PokeFight.ino`, allowing almost infinite customization and fun.
 
 ![](https://github.com/Samu-Kiss/UNI-24-03-Arduino-Poke-Fight/blob/main/Poke-Fight.png?raw=true)
 
