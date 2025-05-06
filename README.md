@@ -1,7 +1,9 @@
-# ⚡ Pokémon Generator for Arduino
+# ⚡ PokeFight - The Arduino Game
 
 ## 🚀 Overview
 This project was created as my **Arduino Final Project**. It’s a **web application** that lets you quickly and visually design and generate “Pokémon” data for your Arduino projects.
+
+(https://github.com/Samu-Kiss/UNI-24-03-Arduino-Poke-Fight/blob/main/Poke-Fight.png?raw=true)
 
 ## ✨ Features
 - 🎮 Configure up to **two players**, each with:
@@ -36,7 +38,9 @@ This tool emerged from the need to streamline character setup in an **Arduino-ba
 2. Open the app in your browser.
 3. Configure your Pokémon (or click “Generate All Random”).
 4. Click **Copy Code**.
-5. Paste the generated code into your Arduino IDE sketch.
+5. Paste the generated code into `PokeFight.ino` in after the comment `// PEGAR ACÁ LO COPIADO DEL WEBSITE` (Line 118).
+6. Load to your Arduino
+7. Play and be happy :)
 
 ## 📝 Notes
 
