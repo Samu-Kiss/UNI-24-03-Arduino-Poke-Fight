@@ -3,7 +3,7 @@
 ## 🚀 Overview
 This project was created as my **Arduino Final Project**. It’s a **web application** that lets you quickly and visually design and generate “Pokémon” data for your Arduino projects.
 
-(https://github.com/Samu-Kiss/UNI-24-03-Arduino-Poke-Fight/blob/main/Poke-Fight.png?raw=true)
+![](https://github.com/Samu-Kiss/UNI-24-03-Arduino-Poke-Fight/blob/main/Poke-Fight.png?raw=true)
 
 ## ✨ Features
 - 🎮 Configure up to **two players**, each with:
