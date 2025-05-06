@@ -38,14 +38,6 @@ This tool emerged from the need to streamline character setup in an **Arduino-ba
 4. Click **Copy Code**.
 5. Paste the generated code into your Arduino IDE sketch.
 
-## 📈 Progress
-
-* [x] Pokémon configuration interface
-* [x] “Random” and “Delete” buttons
-* [x] Dynamic generation of C/C++ code for Arduino
-* [x] Serialization via ID and JSON/QR
-* [ ] Integration with a dynamic lighting library
-
 ## 📝 Notes
 
 * Requires a browser with Clipboard API and `getUserMedia` support.
